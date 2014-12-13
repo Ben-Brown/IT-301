@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Final Project</title>
+    <style>
+        body
+        {
+            background-image: url('termScreen.png');
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        h1
+        {
+            font-family: Tahoma;
+            color: #5DFC0A;
+            text-shadow: 2px 2px 2px black;
+        }
+        #text
+        {
+            padding-left: 4em;
+            font-family: Tahoma;
+            color: #5DFC0A;
+            text-shadow: 2px 2px 2px black;
+            line-height: 1.5em;
+        }
+        #goodBad, #calcrun
+        {           
+           display: table; /* shrink wrap the contents */
+           margin: 0 auto; /* center via left/right margins */
+        }
+        ol
+        {
+           list-style: decimal;
+        }
+    </style>
+</head>
+
+<body>
+<div id=text>
+<h1>Linking Mathematic Functions to Run a Complex Number Calculator <span style="font-size: .4em;">by Ben Brown</span></h1>
+<p>Throughout the fall quarter this class introduced many interesting and very challenging topics.  In an effort to enjoy a balance of the two for this project, I elected to construct a statically linked library.  I found a complex calculator program on the internet <a href="http://www.programmingsimplified.com/c-program-perform-operations-complex-numbers">here</a>.  In order to create a library of files from this one source file, the source file would have to be broken up into C language(.c) and header(.h) files based on the functions performed in the program.  The calculator contains a menu, performs addition, subtraction, multiplication, division, and has a 'struct' containing the parameters used by all of the functions performing mathematical operations.  I divided the program into .c and .h files based on the sections just described.  The .c files contain the function, the function protoype and '#include' the companion .h file (ex. 'add.h' is included at the top of the 'add.c' file).  The .h files contain the function prototype as well as 'include' the .h file containing the struct on which all of the functions operate.</p><br>
+
+<ul><span style="font-size: 1.7em">My objectives for this project are as follows:</span><br><br>
+
+    <li>Divide this complex number calculator into several function-specific files to make editing easier.</li><br><br>
+
+    <li>Create object (.o) files as part of a static library.</li><br><br>
+
+    <li>Create a makefile and link the separated mathematic functions to perform the same calculator functions as the original source code.</li><br><br>
+
+</ul>
+
+<ol><span style="font-size: 1.7em">Issues encountered:</span><br><br>
+
+    <li>The first issue I ran into was how to establish a basic framework for all of the separate files that I would be linking together.
+    Given that the calculator would only be handling one type of problem at a time, there was no need for re-inventing the wheel by creating each function
+    uniquely.</li><br><br>
+
+  	The function prototype to be used by all of the mathematic operations follows:<br>
+  	"operation" is a place holder for the mathematic operation performed (addition, subtraction, multiplication, division).<br><br>
+
+  		<span style="padding-left: 3em">#include "operation.h"</span><br>
+
+		<span style="padding-left: 3em">complex operation(complex r, complex s)</span><br><br>
+        
+
+    <li>After establishing the framework and ensuring consistency across all of the files, the next step was to test.  I initially jumped
+    the gun and tried compiling all of the files together without checking them one at a time.  Below is a screenshot of just some of the errors encountered
+    when I attempted to compile all of the files together.<br><br>
+        
+        <span style="padding-left: 2em; width: 600px; height: 450px; background-image: url('runBarf.JPG'); display:block" /><br><br><br><br><br><br><br><br>
+        <br><br><br><br><br><br><br><br><br><br><br>
+    
+    The same problem was consistent across all of the math operation functions.  This library of files all depend on a struct in order to
+    know what type of data types to use for the operations.<br><br>
+    
+        <span style="padding-left: 3em">struct complex</span><br>
+
+		<span style="padding-left: 4em">{</span><br>
+                <span style="padding-left: 4em">int real;</span> <span style="color: darkgray">//variable used to handle real numbers.</span><br>
+                <span style="padding-left: 4em">int img;</span> <span style="color: darkgray">//variable used to handle imaginary numbers.</span><br>
+                <span style="padding-left: 4em">};</span><br>
+                <span style="padding-left: 3em">typedef struct complex complex;</span> <span style="color: darkgray">// This line defines the 'struct' type
+                with the word 'complex' eliminating the need to type in 'struct complex' throughout all of the files.</span><br><br>
+                
+    </li><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        
+    <li>
+        -->The issue was resolved by including the 'complex.h' file, containing the 'struct complex' above, in all of the header files
+        containing the function prototypes of the math operations utilized.<br><br>
+        -->Below on the left is a screen shot of the 'multiply.c' file failing to compile.  'complex.h' is not #include'd in 'multiply.h' file, disallowing the
+        function in 'multiply.c' from identifying the data types being used.<br><br>
+        -->The screenshot on the right shows a successful comilation of the 'add.c' file.  Notice the '#include "complex.h"' above '#ifndef ADD_H', allowing
+        'add.c' to identify the data types it is working with to execute the program.<br><br>
+                
+        <div id=goodBad>
+        <img src="multError.JPG">
+        <img src="addGood.JPG">
+        </div><br>
+        
+        'menu.o' is not visible in the screen shot.  This is because I forgot to compile it along with the other files.  I compiled it to a .o file prior to
+        creating the 'calculator.a' library below in item #5.
+    </li><br><br>
+    
+    <li>
+        Once 'complex.h' was included in all of the '.h' files, I compiled all of the files to produce the '.o', or object code, files to
+        begin creating a statically linked library.
+        <br><br>
+        <div id=object>
+        <img src="objectFiles.JPG">
+        </div>
+    </li><br><br>
+    
+    <li>
+        After creating the object files for the mathematic operations, I archived them into a library titled 'calculator.a'.
+        <br> <br>
+        <div id=archive>
+        <img src="calcArchive.JPG">
+        </div><br>
+                
+    </li><br><br>
+    
+    <li>
+        Following the creation of the file archive, I created a makefile that recreates the calculator.a archive anytime any of the '.c'
+        math operations files are modified.
+        <br><br> 
+        <div id=makefile>
+        <img src="makeFile.JPG">
+        </div><br>
+                
+    </li><br><br>
+    
+    <li>
+        Next, I created an executable file named 'doMath' to run all of the mathematic operations files linked in 'libcalculator.a'. 
+        <br><br>
+        <div id=dotexe>
+        <img src="doMathEXE.JPG">
+        </div><br>
+                
+    </li><br><br>
+    
+    <li>
+        Once the executable file had been created, I ran several tests ensuring that the operations were running correctly.  Below are screenshots of the
+        complex numbers calculator's performance.
+        <br><br>
+        <div id=calcrun>
+        <img src="calcAdd.JPG">
+        <img src="calcSub.JPG">
+        <img src="calcMult.JPG">
+        </div><br>
+                
+    </li><br><br>
+    
+</ol>
+</div>
+</body>
+</html>
